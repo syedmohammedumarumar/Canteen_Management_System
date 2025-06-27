@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Booking
-from menu.models import MenuItem
 
 class BookingSerializer(serializers.ModelSerializer):
     menu_item_name = serializers.ReadOnlyField(source='menu_item.name')

@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from datetime import datetime
 from .models import Booking
 from .serializers import BookingSerializer
-from core.models import CanteenTiming
+from core.models import CanteenTiming  # Make sure core app has this model
 
 class BookingListCreateView(generics.ListCreateAPIView):
     serializer_class = BookingSerializer
@@ -18,7 +18,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
         # Get canteen timing
         timing = CanteenTiming.objects.first()
         if timing and (now < timing.opening_time or now > timing.closing_time):
-            raise ValidationError("Canteen is closed. Booking allowed only between working hours.")
+            raise ValidationError("Canteen is closed. Booking allowed only during working hours.")
 
         serializer.save(user=self.request.user)
 
