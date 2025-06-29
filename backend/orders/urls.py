@@ -4,7 +4,7 @@ from .views import (OrderListCreateView,
                     UpdateOrderStatusView,
                     DailyOrderSummaryView,
                     AdminOrderListView,
-                    place_order)
+                    )
 urlpatterns = [
     path('', OrderListCreateView.as_view(), name='order-list-create'),
     path('', OrderListCreateView.as_view(), name='orders'),

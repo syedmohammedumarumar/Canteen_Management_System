@@ -91,4 +91,4 @@ class DailyOrderSummaryView(generics.GenericAPIView):
 class AdminOrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [IsAdminUser]
-    queryset = Order.objects.all()
+    queryset = Order.objects.all()  
