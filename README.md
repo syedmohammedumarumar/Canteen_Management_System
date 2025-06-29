@@ -588,3 +588,375 @@ menu testing guide
 }
 ```
 
+
+
+
+
+
+===================================================================================================================
+# Complete CMS Backend API Testing Guide
+
+## Customer User Flow API Testing
+
+### 1. User Registration & Login
+
+#### Register as Customer
+```
+POST /api/users/register/
+Content-Type: application/json
+
+{
+    "username": "customer1",
+    "email": "customer1@example.com",
+    "password": "password123",
+    "password_confirm": "password123",
+    "first_name": "John",
+    "last_name": "Doe"
+}
+```
+
+#### Login as Customer
+```
+POST /api/users/login/
+Content-Type: application/json
+
+{
+    "username": "customer1",
+    "password": "password123"
+}
+```
+
+**Save the `access` token from response for subsequent requests**
+
+### 2. Browse Menu
+
+#### Get All Available Menu Items
+```
+GET /api/menu/customer/
+```
+
+#### Filter by Category
+```
+GET /api/menu/customer/?category=juices
+GET /api/menu/customer/?category=snacks
+```
+
+#### Search Menu Items
+```
+GET /api/menu/customer/search/?q=dosa
+GET /api/menu/customer/search/?category=beverages&min_price=20&max_price=50
+```
+
+#### Get Menu Categories
+```
+GET /api/menu/customer/categories/
+```
+
+#### Get Featured Items
+```
+GET /api/menu/customer/featured/
+```
+
+#### Get Specific Menu Item
+```
+GET /api/menu/customer/{menu_item_id}/
+```
+
+### 3. Cart Management
+
+#### View Cart
+```
+GET /api/cart/
+Authorization: Bearer {access_token}
+```
+
+#### Add Item to Cart
+```
+POST /api/cart/add/
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "menu_item_id": 1,
+    "quantity": 2
+}
+```
+
+#### Update Cart Item Quantity
+```
+PUT /api/cart/items/{cart_item_id}/update/
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "quantity": 3
+}
+```
+
+#### Remove Item from Cart
+```
+DELETE /api/cart/items/{cart_item_id}/remove/
+Authorization: Bearer {access_token}
+```
+
+#### Get Cart Summary
+```
+GET /api/cart/summary/
+Authorization: Bearer {access_token}
+```
+
+#### Clear Cart
+```
+DELETE /api/cart/clear/
+Authorization: Bearer {access_token}
+```
+
+### 4. Order Management
+
+#### Place Order from Cart
+```
+POST /api/orders/place/
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "notes": "Please make it less spicy"
+}
+```
+
+#### View Customer Orders
+```
+GET /api/orders/
+Authorization: Bearer {access_token}
+```
+
+#### Filter Orders by Status
+```
+GET /api/orders/?status=PLACED
+GET /api/orders/?status=DELIVERED
+```
+
+#### Get Specific Order Details
+```
+GET /api/orders/{order_id}/
+Authorization: Bearer {access_token}
+```
+
+#### Cancel Order
+```
+POST /api/orders/{order_id}/cancel/
+Authorization: Bearer {access_token}
+```
+
+#### Get Order History with Pagination
+```
+GET /api/orders/history/?page=1
+Authorization: Bearer {access_token}
+```
+
+### 5. Profile Management
+
+#### Get Profile Info
+```
+GET /api/users/profile/info/
+Authorization: Bearer {access_token}
+```
+
+#### Update Customer Profile
+```
+PUT /api/users/profile/
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "phone": "+91-9876543210",
+    "roll_number": "CS2021001",
+    "address": "Hostel Block A, Room 205",
+    "gender": "M",
+    "date_of_birth": "2000-05-15"
+}
+```
+
+---
+
+## Admin API Testing
+
+### 1. Admin Login
+```
+POST /api/users/admin/login/
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "adminpassword"
+}
+```
+
+### 2. Menu Management (Admin)
+
+#### List All Menu Items
+```
+GET /api/menu/admin/
+Authorization: Bearer {admin_access_token}
+```
+
+#### Create New Menu Item
+```
+POST /api/menu/admin/
+Authorization: Bearer {admin_access_token}
+Content-Type: application/json
+
+{
+    "name": "Masala Dosa",
+    "description": "Crispy dosa with spicy potato filling",
+    "price": 45.00,
+    "available": true,
+    "category": "snacks"
+}
+```
+
+#### Update Menu Item
+```
+PUT /api/menu/admin/{menu_item_id}/
+Authorization: Bearer {admin_access_token}
+Content-Type: application/json
+
+{
+    "name": "Special Masala Dosa",
+    "description": "Extra spicy dosa with potato filling",
+    "price": 50.00,
+    "available": true,
+    "category": "snacks"
+}
+```
+
+#### Delete Menu Item
+```
+DELETE /api/menu/admin/{menu_item_id}/
+Authorization: Bearer {admin_access_token}
+```
+
+### 3. Order Management (Admin)
+
+#### View All Orders
+```
+GET /api/orders/admin/
+Authorization: Bearer {admin_access_token}
+```
+
+#### Filter Orders
+```
+GET /api/orders/admin/?status=PLACED
+GET /api/orders/admin/?search=customer1
+```
+
+#### Update Order Status
+```
+PATCH /api/orders/admin/{order_id}/update-status/
+Authorization: Bearer {admin_access_token}
+Content-Type: application/json
+
+{
+    "status": "PREPARING"
+}
+```
+
+#### Get Daily Order Summary
+```
+GET /api/orders/admin/summary/today/
+Authorization: Bearer {admin_access_token}
+```
+
+---
+
+## Complete User Journey Test
+
+### Step 1: Setup Menu Items (Admin)
+1. Login as admin
+2. Create menu items for different categories
+3. Verify items are created
+
+### Step 2: Customer Registration & Browse
+1. Register as customer
+2. Login as customer
+3. Browse menu items
+4. Filter by categories
+5. Search for specific items
+
+### Step 3: Add to Cart
+1. Add multiple items to cart
+2. Update quantities
+3. View cart summary
+4. Remove some items
+
+### Step 4: Place Order
+1. Place order from cart
+2. Verify cart is cleared
+3. Check order status
+
+### Step 5: Order Management
+1. View order history
+2. Try to cancel recent order
+3. Admin updates order status
+4. Customer views updated status
+
+---
+
+## Error Testing Scenarios
+
+### Cart Errors
+- Add unavailable item to cart
+- Add invalid menu item ID
+- Update non-existent cart item
+- Add negative quantity
+
+### Order Errors
+- Place order with empty cart
+- Cancel already delivered order
+- Place order with unavailable items
+
+### Authentication Errors
+- Access protected endpoints without token
+- Use expired tokens
+- Access admin endpoints with customer token
+
+---
+
+## Expected Response Formats
+
+### Successful Cart Addition
+```json
+{
+    "message": "Added Masala Dosa to cart",
+    "cart_item": {
+        "id": 1,
+        "menu_item": 1,
+        "menu_item_name": "Masala Dosa",
+        "menu_item_price": "45.00",
+        "menu_item_category": "snacks",
+        "menu_item_available": true,
+        "quantity": 2,
+        "total_price": "90.00",
+        "added_at": "2025-06-30T10:30:00Z"
+    }
+}
+```
+
+### Successful Order Placement
+```json
+{
+    "message": "Order placed successfully",
+    "order": {
+        "id": 1,
+        "user": 1,
+        "user_username": "customer1",
+        "status": "PLACED",
+        "total_amount": "90.00",
+        "total_items": 2,
+        "notes": "Please make it less spicy",
+        "items": [...],
+        "created_at": "2025-06-30T10:35:00Z",
+        "updated_at": "2025-06-30T10:35:00Z"
+    }
+}
+```
