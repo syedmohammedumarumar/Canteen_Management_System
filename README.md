@@ -1,174 +1,65 @@
-# cms
-# cms_project
+# CMS API Documentation
 
+## Base URL
+`http://127.0.0.1:8000` or `http://localhost:8000`
 
-# CMS Authentication System - Complete Guide
+---
 
-## Overview
+## 🔐 Authentication APIs
 
-This authentication system provides separate endpoints and functionality for:
-- **Regular Users (Customers)**: Students/staff who use the canteen
-- **Admin Users**: Canteen management staff with administrative privileges
+### 1. Customer Registration
+**Purpose**: Register a new customer account
 
-## API Endpoints
+- **Method**: `POST`
+- **Endpoint**: `/api/users/register/`
+- **Authentication**: Not required
+- **Content-Type**: `application/json`
 
-### 🔐 Authentication Endpoints
-
-#### Customer Registration
-```
-POST /api/users/register/
-```
-**Body:**
+**Request Body**:
 ```json
 {
-    "username": "student123",
-    "email": "student@example.com",
-    "password": "securepassword123",
-    "password_confirm": "securepassword123",
-    "first_name": "John",
-    "last_name": "Doe"
+    "username": "student123",           // Required, unique
+    "email": "student@example.com",     // Required, valid email
+    "password": "securepassword123",    // Required, min 8 characters
+    "password_confirm": "securepassword123", // Required, must match password
+    "first_name": "John",               // Required
+    "last_name": "Doe"                  // Required
 }
 ```
 
-#### Admin Registration (Admin Only)
-```
-POST /api/users/admin/register/
-```
-**Headers:** `Authorization: Bearer <admin_access_token>`
-**Body:**
+**Success Response** (201):
 ```json
 {
-    "username": "admin123",
-    "email": "admin@canteen.com",
-    "password": "adminpassword123",
-    "password_confirm": "adminpassword123",
-    "first_name": "Jane",
-    "last_name": "Smith"
+    "message": "User registered successfully",
+    "user": {
+        "id": 1,
+        "username": "student123",
+        "email": "student@example.com",
+        "first_name": "John",
+        "last_name": "Doe"
+    }
 }
 ```
 
-#### Customer Login
-```
-POST /api/users/login/
-```
-**Body:**
+---
+
+### 2. Customer Login
+**Purpose**: Login customer and get authentication tokens
+
+- **Method**: `POST`
+- **Endpoint**: `/api/users/login/`
+- **Authentication**: Not required
+- **Content-Type**: `application/json`
+
+**Request Body**:
 ```json
 {
-    "username": "student123",
-    "password": "securepassword123"
+    "username": "student123",           // Required
+    "password": "securepassword123"     // Required
 }
 ```
 
-#### Admin Login
-```
-POST /api/users/admin/login/
-```
-**Body:**
-```json
-{
-    "username": "admin123",
-    "password": "adminpassword123"
-}
-```
-
-#### Logout (Both User Types)
-```
-POST /api/users/logout/
-```
-**Headers:** `Authorization: Bearer <access_token>`
-**Body:**
-```json
-{
-    "refresh": "<refresh_token>"
-}
-```
-
-#### Token Refresh
-```
-POST /api/token/refresh/
-```
-**Body:**
-```json
-{
-    "refresh": "<refresh_token>"
-}
-```
-
-### 👤 Profile Management
-
-#### Get Current User Profile Info
-```
-GET /api/users/profile/info/
-```
-**Headers:** `Authorization: Bearer <access_token>`
-
-#### Customer Profile Management
-```
-GET/PUT/PATCH /api/users/profile/
-```
-**Headers:** `Authorization: Bearer <customer_access_token>`
-**Body (for PUT/PATCH):**
-```json
-{
-    "phone": "+91-9876543210",
-    "roll_number": "CS2021001",
-    "address": "Hostel Block A, Room 205",
-    "gender": "M",
-    "date_of_birth": "2000-05-15",
-    "first_name": "John",
-    "last_name": "Doe",
-    "email": "john.doe@example.com"
-}
-```
-
-#### Admin Profile Management
-```
-GET/PUT/PATCH /api/users/admin/profile/
-```
-**Headers:** `Authorization: Bearer <admin_access_token>`
-**Body (for PUT/PATCH):**
-```json
-{
-    "phone": "+91-9876543210",
-    "employee_id": "EMP001",
-    "department": "KITCHEN",
-    "position": "Head Chef",
-    "first_name": "Jane",
-    "last_name": "Smith",
-    "email": "jane.smith@canteen.com"
-}
-```
-
-### 👥 User Management (Admin Only)
-
-#### List All Users
-```
-GET /api/users/admin/users/
-```
-**Headers:** `Authorization: Bearer <admin_access_token>`
-
-#### Get/Update/Delete Specific User
-```
-GET/PUT/PATCH/DELETE /api/users/admin/users/<user_id>/
-```
-**Headers:** `Authorization: Bearer <admin_access_token>`
-
-### 🔧 Utility Endpoints
-
-#### Check Username Availability
-```
-POST /api/users/check-username/
-```
-**Body:**
-```json
-{
-    "username": "newuser123"
-}
-```
-
-## Response Examples
-
-### Successful Login Response
+**Success Response** (200):
 ```json
 {
     "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
@@ -179,193 +70,243 @@ POST /api/users/check-username/
         "email": "student@example.com",
         "first_name": "John",
         "last_name": "Doe",
-        "is_staff": false,
-        "is_active": true,
-        "date_joined": "2025-06-28T10:30:00Z"
+        "is_staff": false
     },
     "user_type": "customer",
     "profile": {
         "id": 1,
-        "phone": "+91-9876543210",
-        "roll_number": "CS2021001",
-        "address": "Hostel Block A",
-        "gender": "M",
-        "date_of_birth": "2000-05-15",
-        "profile_image": null,
-        "created_at": "2025-06-28T10:30:00Z",
-        "updated_at": "2025-06-28T10:30:00Z"
+        "phone": null,
+        "roll_number": null,
+        "address": null,
+        "gender": null,
+        "date_of_birth": null
     }
 }
 ```
-
-## Key Features
-
-### 🔒 Security Features
-1. **Separate Login Endpoints**: Different endpoints for admin and customer login
-2. **Role-based Access Control**: Admins can't access customer endpoints and vice versa
-3. **JWT Authentication**: Secure token-based authentication
-4. **Password Validation**: Strong password requirements
-5. **Token Blacklisting**: Secure logout with token invalidation
-
-### 📱 Profile Management
-1. **Auto Profile Creation**: Profiles are automatically created when users register
-2. **Comprehensive Profile Fields**: 
-   - Customer: roll_number, phone, address, gender, date_of_birth, profile_image
-   - Admin: employee_id, department, position, phone, profile_image
-3. **Profile Updates**: Users can update their own profiles
-4. **Image Upload**: Profile picture support
-
-### 🎯 User Management
-1. **Admin User Management**: Admins can view, update, and delete customer users
-2. **User Type Detection**: Automatic detection of user type based on staff status
-3. **Username Availability Check**: Real-time username validation
-
-## Database Migrations
-
-After implementing this system, run:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-## Creating Initial Admin User
-
-```bash
-python manage.py createsuperuser
-```
-
-## Frontend Integration Examples
-
-### Login Flow
-```javascript
-// Customer Login
-const loginCustomer = async (username, password) => {
-    const response = await fetch('/api/users/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    });
-    
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('access_token', data.access);
-        localStorage.setItem('refresh_token', data.refresh);
-        localStorage.setItem('user_type', data.user_type);
-        return data;
-    }
-    throw new Error('Login failed');
-};
-
-// Admin Login
-const loginAdmin = async (username, password) => {
-    const response = await fetch('/api/users/admin/login/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    });
-    
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('access_token', data.access);
-        localStorage.setItem('refresh_token', data.refresh);
-        localStorage.setItem('user_type', data.user_type);
-        return data;
-    }
-    throw new Error('Admin login failed');
-};
-```
-
-### Protected API Calls
-```javascript
-const makeAuthenticatedRequest = async (url, options = {}) => {
-    const token = localStorage.getItem('access_token');
-    
-    const response = await fetch(url, {
-        ...options,
-        headers: {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-    });
-    
-    if (response.status === 401) {
-        // Token expired, try to refresh
-        await refreshToken();
-        // Retry the request
-        return makeAuthenticatedRequest(url, options);
-    }
-    
-    return response;
-};
-```
-
-## Error Handling
-
-### Common Error Responses
-```json
-{
-    "error": "Invalid credentials"
-}
-
-{
-    "username": ["A user with that username already exists."]
-}
-
-{
-    "password": ["This password is too short. It must contain at least 8 characters."]
-}
-
-{
-    "non_field_errors": ["Passwords don't match"]
-}
-```
-
-## Permissions Summary
-
-| Endpoint | Customer | Admin | Superuser |
-|----------|----------|-------|-----------|
-| Customer Registration | ✅ | ✅ | ✅ |
-| Admin Registration | ❌ | ✅ | ✅ |
-| Customer Login | ✅ | ❌ | ❌ |
-| Admin Login | ❌ | ✅ | ✅ |
-| Customer Profile | ✅ (own) | ❌ | ✅ |
-| Admin Profile | ❌ | ✅ (own) | ✅ |
-| User Management | ❌ | ✅ | ✅ |
-| Logout | ✅ | ✅ | ✅ |
-
-This comprehensive authentication system provides secure, role-based access control for your canteen management system with separate workflows for customers and administrators.
-
-
-
-menu testing guide
-
-# Canteen Management System - Postman API Testing Guide
-
-## Prerequisites
-- Ensure your Django server is running: `python manage.py runserver`
-- Default server URL: `http://127.0.0.1:8000` or `http://localhost:8000`
-- Replace `your-app-name` with your actual Django app name in URLs
 
 ---
 
-## 1. GET - List All Items
+### 3. Admin Login
+**Purpose**: Login admin user and get authentication tokens
 
-**Purpose**: Retrieve all menu items
+- **Method**: `POST`
+- **Endpoint**: `/api/users/admin/login/`
+- **Authentication**: Not required
+- **Content-Type**: `application/json`
 
-### Request Details:
-- **Method**: GET
-- **URL**: `http://127.0.0.1:8000/your-app-name/`
-- **Headers**: None required
-- **Body**: None
+**Request Body**:
+```json
+{
+    "username": "admin123",             // Required
+    "password": "adminpassword123"      // Required
+}
+```
 
+**Success Response** (200):
+```json
+{
+    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "user": {
+        "id": 2,
+        "username": "admin123",
+        "email": "admin@canteen.com",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "is_staff": true
+    },
+    "user_type": "admin",
+    "profile": {
+        "id": 2,
+        "phone": null,
+        "employee_id": null,
+        "department": null,
+        "position": null
+    }
+}
+```
 
-### Expected Response:
+---
+
+### 4. Logout
+**Purpose**: Logout user and invalidate tokens
+
+- **Method**: `POST`
+- **Endpoint**: `/api/users/logout/`
+- **Authentication**: Required (Bearer Token)
+- **Content-Type**: `application/json`
+- **Headers**: `Authorization: Bearer <access_token>`
+
+**Request Body**:
+```json
+{
+    "refresh": "<refresh_token>"        // Required
+}
+```
+
+**Success Response** (200):
+```json
+{
+    "message": "Successfully logged out"
+}
+```
+
+---
+
+### 5. Token Refresh
+**Purpose**: Get new access token using refresh token
+
+- **Method**: `POST`
+- **Endpoint**: `/api/token/refresh/`
+- **Authentication**: Not required
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "refresh": "<refresh_token>"        // Required
+}
+```
+
+**Success Response** (200):
+```json
+{
+    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+---
+
+## 👤 Profile Management APIs
+
+### 6. Get Current User Profile Info
+**Purpose**: Get current logged-in user's basic information
+
+- **Method**: `GET`
+- **Endpoint**: `/api/users/profile/info/`
+- **Authentication**: Required (Bearer Token)
+- **Headers**: `Authorization: Bearer <access_token>`
+
+**Success Response** (200):
+```json
+{
+    "id": 1,
+    "username": "student123",
+    "email": "student@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "user_type": "customer",
+    "is_staff": false,
+    "date_joined": "2025-06-28T10:30:00Z"
+}
+```
+
+---
+
+### 7. Get Customer Profile
+**Purpose**: Get detailed customer profile information
+
+- **Method**: `GET`
+- **Endpoint**: `/api/users/profile/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
+```json
+{
+    "id": 1,
+    "user": {
+        "id": 1,
+        "username": "student123",
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "student@example.com"
+    },
+    "phone": "+91-9876543210",
+    "roll_number": "CS2021001",
+    "address": "Hostel Block A, Room 205",
+    "gender": "M",
+    "date_of_birth": "2000-05-15",
+    "profile_image": null,
+    "created_at": "2025-06-28T10:30:00Z",
+    "updated_at": "2025-06-28T10:30:00Z"
+}
+```
+
+---
+
+### 8. Update Customer Profile
+**Purpose**: Update customer profile information
+
+- **Method**: `PUT` or `PATCH`
+- **Endpoint**: `/api/users/profile/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "phone": "+91-9876543210",          // Optional
+    "roll_number": "CS2021001",         // Optional
+    "address": "Hostel Block A, Room 205", // Optional
+    "gender": "M",                      // Optional (M/F/O)
+    "date_of_birth": "2000-05-15",      // Optional (YYYY-MM-DD)
+    "first_name": "John",               // Optional
+    "last_name": "Doe",                 // Optional
+    "email": "john.doe@example.com"     // Optional
+}
+```
+
+---
+
+### 9. Get Admin Profile
+**Purpose**: Get detailed admin profile information
+
+- **Method**: `GET`
+- **Endpoint**: `/api/users/admin/profile/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+
+---
+
+### 10. Update Admin Profile
+**Purpose**: Update admin profile information
+
+- **Method**: `PUT` or `PATCH`
+- **Endpoint**: `/api/users/admin/profile/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "phone": "+91-9876543210",          // Optional
+    "employee_id": "EMP001",            // Optional
+    "department": "KITCHEN",            // Optional
+    "position": "Head Chef",            // Optional
+    "first_name": "Jane",               // Optional
+    "last_name": "Smith",               // Optional
+    "email": "jane.smith@canteen.com"   // Optional
+}
+```
+
+---
+
+## 🍽️ Menu APIs (Customer View)
+
+### 11. Get All Available Menu Items
+**Purpose**: Get all available menu items for customers
+
+- **Method**: `GET`
+- **Endpoint**: `/api/menu/customer/`
+- **Authentication**: Not required
+- **Query Parameters**:
+  - `category` (optional): Filter by category
+  - `available` (optional): Filter by availability (true/false)
+
+**Success Response** (200):
 ```json
 [
     {
@@ -374,589 +315,437 @@ menu testing guide
         "description": "Fresh orange juice",
         "price": "25.00",
         "available": true,
-        "category": "juices"
-    },
-    {
-        "id": 2,
-        "name": "Samosa",
-        "description": "Crispy fried samosa",
-        "price": "15.00",
-        "available": true,
-        "category": "snacks"
+        "category": "juices",
+        "created_at": "2025-06-28T10:30:00Z"
     }
 ]
 ```
 
 ---
 
-## 2. POST - Add New Item
+### 12. Search Menu Items
+**Purpose**: Search menu items with filters
 
-**Purpose**: Create a new menu item
+- **Method**: `GET`
+- **Endpoint**: `/api/menu/customer/search/`
+- **Authentication**: Not required
+- **Query Parameters**:
+  - `q` (optional): Search query
+  - `category` (optional): Filter by category
+  - `min_price` (optional): Minimum price filter
+  - `max_price` (optional): Maximum price filter
 
-### Request Details:
-- **Method**: POST
-- **URL**: `http://127.0.0.1:8000/your-app-name/add/`
-- **Headers**: 
-  - `Content-Type: application/json`
-- **Body**: Raw JSON
+---
 
+### 13. Get Menu Categories
+**Purpose**: Get all available menu categories
 
-### Sample Request Body:
+- **Method**: `GET`
+- **Endpoint**: `/api/menu/customer/categories/`
+- **Authentication**: Not required
+
+**Success Response** (200):
 ```json
-{
-    "name": "Mango Juice",
-    "description": "Fresh mango juice with pulp",
-    "price": 30.00,
-    "available": true,
-    "category": "juices"
-}
+[
+    {
+        "category": "juices",
+        "count": 5
+    },
+    {
+        "category": "snacks",
+        "count": 8
+    }
+]
 ```
 
-### Test Cases:
+---
 
-#### Test Case 1: Valid Data
+### 14. Get Specific Menu Item
+**Purpose**: Get details of a specific menu item
+
+- **Method**: `GET`
+- **Endpoint**: `/api/menu/customer/{menu_item_id}/`
+- **Authentication**: Not required
+
+---
+
+## 🛒 Cart Management APIs
+
+### 15. View Cart
+**Purpose**: Get current user's cart items
+
+- **Method**: `GET`
+- **Endpoint**: `/api/cart/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
 ```json
 {
-    "name": "Cold Coffee",
-    "description": "Iced coffee with milk",
-    "price": 45.00,
-    "available": true,
-    "category": "beverages"
-}
-```
-
-#### Test Case 2: Minimum Required Fields
-```json
-{
-    "name": "Plain Water",
-    "price": 10.00,
-    "category": "beverages"
-}
-```
-
-#### Test Case 3: Invalid Category (Should fail)
-```json
-{
-    "name": "Pizza",
-    "price": 150.00,
-    "category": "invalid_category"
-}
-```
-
-### Expected Success Response (201 Created):
-```json
-{
-    "id": 3,
-    "name": "Mango Juice",
-    "description": "Fresh mango juice with pulp",
-    "price": "30.00",
-    "available": true,
-    "category": "juices"
+    "cart_items": [
+        {
+            "id": 1,
+            "menu_item": 1,
+            "menu_item_name": "Orange Juice",
+            "menu_item_price": "25.00",
+            "menu_item_category": "juices",
+            "quantity": 2,
+            "total_price": "50.00",
+            "added_at": "2025-06-30T10:30:00Z"
+        }
+    ],
+    "total_amount": "50.00",
+    "total_items": 2
 }
 ```
 
 ---
 
-## 3. PUT - Update Existing Item
+### 16. Add Item to Cart
+**Purpose**: Add menu item to cart
 
-**Purpose**: Update an existing menu item completely
+- **Method**: `POST`
+- **Endpoint**: `/api/cart/add/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+- **Content-Type**: `application/json`
 
-### Request Details:
-- **Method**: PUT
-- **URL**: `http://127.0.0.1:8000/your-app-name/{id}/update/`
-- **Headers**: 
-  - `Content-Type: application/json`
-- **Body**: Raw JSON
-
-
-### Sample Request Body:
+**Request Body**:
 ```json
 {
-    "name": "Fresh Orange Juice",
-    "description": "Freshly squeezed orange juice - Updated",
-    "price": 35.00,
-    "available": false,
-    "category": "juices"
+    "menu_item_id": 1,                  // Required
+    "quantity": 2                       // Required, positive integer
 }
 ```
 
-### Test Cases:
-
-#### Test Case 1: Update All Fields
+**Success Response** (201):
 ```json
 {
-    "name": "Premium Coffee",
-    "description": "Premium blend coffee with cream",
-    "price": 55.00,
-    "available": true,
-    "category": "beverages"
-}
-```
-
-#### Test Case 2: Update Only Price and Availability
-```json
-{
-    "name": "Samosa",
-    "description": "Crispy fried samosa",
-    "price": 18.00,
-    "available": false,
-    "category": "snacks"
-}
-```
-
-### Expected Success Response (200 OK):
-```json
-{
-    "id": 1,
-    "name": "Fresh Orange Juice",
-    "description": "Freshly squeezed orange juice - Updated",
-    "price": "35.00",
-    "available": false,
-    "category": "juices"
-}
-```
-
----
-
-## 4. DELETE - Remove Item
-
-**Purpose**: Delete a menu item
-
-### Request Details:
-- **Method**: DELETE
-- **URL**: `http://127.0.0.1:8000/your-app-name/{id}/delete/`
-- **Headers**: None required
-- **Body**: None
-
-### Expected Success Response (204 No Content):
-```json
-{
-    "message": "Item deleted successfully"
-}
-```
-
-### Expected Error Response (404 Not Found):
-```json
-{
-    "error": "Item not found"
-}
-```
-
----
-
-## Common Test Scenarios
-
-### 1. Testing Error Handling
-
-#### Missing Required Fields (POST):
-```json
-{
-    "description": "Just description, no name or price"
-}
-```
-
-#### Invalid Item ID (PUT/DELETE):
-- URL: `http://127.0.0.1:8000/your-app-name/999/update/`
-- Should return 404 error
-
-#### Invalid Price Format:
-```json
-{
-    "name": "Test Item",
-    "price": "invalid_price",
-    "category": "snacks"
-}
-```
-
-### 2. Testing Data Validation
-
-#### Price with more than 2 decimal places:
-```json
-{
-    "name": "Test Item",
-    "price": 25.999,
-    "category": "snacks"
-}
-```
-
-#### Very long name (over 100 characters):
-```json
-{
-    "name": "This is a very long name that exceeds the maximum length limit of 100 characters for testing purposes and should be rejected",
-    "price": 25.00,
-    "category": "snacks"
-}
-```
-
-
-
-
-
-
-===================================================================================================================
-# Complete CMS Backend API Testing Guide
-
-## Customer User Flow API Testing
-
-### 1. User Registration & Login
-
-#### Register as Customer
-```
-POST /api/users/register/
-Content-Type: application/json
-
-{
-    "username": "customer1",
-    "email": "customer1@example.com",
-    "password": "password123",
-    "password_confirm": "password123",
-    "first_name": "John",
-    "last_name": "Doe"
-}
-```
-
-#### Login as Customer
-```
-POST /api/users/login/
-Content-Type: application/json
-
-{
-    "username": "customer1",
-    "password": "password123"
-}
-```
-
-**Save the `access` token from response for subsequent requests**
-
-### 2. Browse Menu
-
-#### Get All Available Menu Items
-```
-GET /api/menu/customer/
-```
-
-#### Filter by Category
-```
-GET /api/menu/customer/?category=juices
-GET /api/menu/customer/?category=snacks
-```
-
-#### Search Menu Items
-```
-GET /api/menu/customer/search/?q=dosa
-GET /api/menu/customer/search/?category=beverages&min_price=20&max_price=50
-```
-
-#### Get Menu Categories
-```
-GET /api/menu/customer/categories/
-```
-
-#### Get Featured Items
-```
-GET /api/menu/customer/featured/
-```
-
-#### Get Specific Menu Item
-```
-GET /api/menu/customer/{menu_item_id}/
-```
-
-### 3. Cart Management
-
-#### View Cart
-```
-GET /api/cart/
-Authorization: Bearer {access_token}
-```
-
-#### Add Item to Cart
-```
-POST /api/cart/add/
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-    "menu_item_id": 1,
-    "quantity": 2
-}
-```
-
-#### Update Cart Item Quantity
-```
-PUT /api/cart/items/{cart_item_id}/update/
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-    "quantity": 3
-}
-```
-
-#### Remove Item from Cart
-```
-DELETE /api/cart/items/{cart_item_id}/remove/
-Authorization: Bearer {access_token}
-```
-
-#### Get Cart Summary
-```
-GET /api/cart/summary/
-Authorization: Bearer {access_token}
-```
-
-#### Clear Cart
-```
-DELETE /api/cart/clear/
-Authorization: Bearer {access_token}
-```
-
-### 4. Order Management
-
-#### Place Order from Cart
-```
-POST /api/orders/place/
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-    "notes": "Please make it less spicy"
-}
-```
-
-#### View Customer Orders
-```
-GET /api/orders/
-Authorization: Bearer {access_token}
-```
-
-#### Filter Orders by Status
-```
-GET /api/orders/?status=PLACED
-GET /api/orders/?status=DELIVERED
-```
-
-#### Get Specific Order Details
-```
-GET /api/orders/{order_id}/
-Authorization: Bearer {access_token}
-```
-
-#### Cancel Order
-```
-POST /api/orders/{order_id}/cancel/
-Authorization: Bearer {access_token}
-```
-
-#### Get Order History with Pagination
-```
-GET /api/orders/history/?page=1
-Authorization: Bearer {access_token}
-```
-
-### 5. Profile Management
-
-#### Get Profile Info
-```
-GET /api/users/profile/info/
-Authorization: Bearer {access_token}
-```
-
-#### Update Customer Profile
-```
-PUT /api/users/profile/
-Authorization: Bearer {access_token}
-Content-Type: application/json
-
-{
-    "phone": "+91-9876543210",
-    "roll_number": "CS2021001",
-    "address": "Hostel Block A, Room 205",
-    "gender": "M",
-    "date_of_birth": "2000-05-15"
-}
-```
-
----
-
-## Admin API Testing
-
-### 1. Admin Login
-```
-POST /api/users/admin/login/
-Content-Type: application/json
-
-{
-    "username": "admin",
-    "password": "adminpassword"
-}
-```
-
-### 2. Menu Management (Admin)
-
-#### List All Menu Items
-```
-GET /api/menu/admin/
-Authorization: Bearer {admin_access_token}
-```
-
-#### Create New Menu Item
-```
-POST /api/menu/admin/
-Authorization: Bearer {admin_access_token}
-Content-Type: application/json
-
-{
-    "name": "Masala Dosa",
-    "description": "Crispy dosa with spicy potato filling",
-    "price": 45.00,
-    "available": true,
-    "category": "snacks"
-}
-```
-
-#### Update Menu Item
-```
-PUT /api/menu/admin/{menu_item_id}/
-Authorization: Bearer {admin_access_token}
-Content-Type: application/json
-
-{
-    "name": "Special Masala Dosa",
-    "description": "Extra spicy dosa with potato filling",
-    "price": 50.00,
-    "available": true,
-    "category": "snacks"
-}
-```
-
-#### Delete Menu Item
-```
-DELETE /api/menu/admin/{menu_item_id}/
-Authorization: Bearer {admin_access_token}
-```
-
-### 3. Order Management (Admin)
-
-#### View All Orders
-```
-GET /api/orders/admin/
-Authorization: Bearer {admin_access_token}
-```
-
-#### Filter Orders
-```
-GET /api/orders/admin/?status=PLACED
-GET /api/orders/admin/?search=customer1
-```
-
-#### Update Order Status
-```
-PATCH /api/orders/admin/{order_id}/update-status/
-Authorization: Bearer {admin_access_token}
-Content-Type: application/json
-
-{
-    "status": "PREPARING"
-}
-```
-
-#### Get Daily Order Summary
-```
-GET /api/orders/admin/summary/today/
-Authorization: Bearer {admin_access_token}
-```
-
----
-
-## Complete User Journey Test
-
-### Step 1: Setup Menu Items (Admin)
-1. Login as admin
-2. Create menu items for different categories
-3. Verify items are created
-
-### Step 2: Customer Registration & Browse
-1. Register as customer
-2. Login as customer
-3. Browse menu items
-4. Filter by categories
-5. Search for specific items
-
-### Step 3: Add to Cart
-1. Add multiple items to cart
-2. Update quantities
-3. View cart summary
-4. Remove some items
-
-### Step 4: Place Order
-1. Place order from cart
-2. Verify cart is cleared
-3. Check order status
-
-### Step 5: Order Management
-1. View order history
-2. Try to cancel recent order
-3. Admin updates order status
-4. Customer views updated status
-
----
-
-## Error Testing Scenarios
-
-### Cart Errors
-- Add unavailable item to cart
-- Add invalid menu item ID
-- Update non-existent cart item
-- Add negative quantity
-
-### Order Errors
-- Place order with empty cart
-- Cancel already delivered order
-- Place order with unavailable items
-
-### Authentication Errors
-- Access protected endpoints without token
-- Use expired tokens
-- Access admin endpoints with customer token
-
----
-
-## Expected Response Formats
-
-### Successful Cart Addition
-```json
-{
-    "message": "Added Masala Dosa to cart",
+    "message": "Added Orange Juice to cart",
     "cart_item": {
         "id": 1,
         "menu_item": 1,
-        "menu_item_name": "Masala Dosa",
-        "menu_item_price": "45.00",
-        "menu_item_category": "snacks",
-        "menu_item_available": true,
+        "menu_item_name": "Orange Juice",
+        "menu_item_price": "25.00",
         "quantity": 2,
-        "total_price": "90.00",
+        "total_price": "50.00",
         "added_at": "2025-06-30T10:30:00Z"
     }
 }
 ```
 
-### Successful Order Placement
+---
+
+### 17. Update Cart Item Quantity
+**Purpose**: Update quantity of item in cart
+
+- **Method**: `PUT`
+- **Endpoint**: `/api/cart/items/{cart_item_id}/update/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "quantity": 3                       // Required, positive integer
+}
+```
+
+---
+
+### 18. Remove Item from Cart
+**Purpose**: Remove specific item from cart
+
+- **Method**: `DELETE`
+- **Endpoint**: `/api/cart/items/{cart_item_id}/remove/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
+```json
+{
+    "message": "Item removed from cart"
+}
+```
+
+---
+
+### 19. Get Cart Summary
+**Purpose**: Get cart total and item count
+
+- **Method**: `GET`
+- **Endpoint**: `/api/cart/summary/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
+```json
+{
+    "total_amount": "125.00",
+    "total_items": 5,
+    "item_count": 3
+}
+```
+
+---
+
+### 20. Clear Cart
+**Purpose**: Remove all items from cart
+
+- **Method**: `DELETE`
+- **Endpoint**: `/api/cart/clear/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
+```json
+{
+    "message": "Cart cleared successfully"
+}
+```
+
+---
+
+## 📋 Order Management APIs (Customer)
+
+### 21. Place Order from Cart
+**Purpose**: Convert cart items to order
+
+- **Method**: `POST`
+- **Endpoint**: `/api/orders/place/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "notes": "Please make it less spicy"    // Optional
+}
+```
+
+**Success Response** (201):
 ```json
 {
     "message": "Order placed successfully",
     "order": {
         "id": 1,
         "user": 1,
-        "user_username": "customer1",
+        "user_username": "student123",
         "status": "PLACED",
-        "total_amount": "90.00",
-        "total_items": 2,
+        "total_amount": "125.00",
+        "total_items": 5,
         "notes": "Please make it less spicy",
-        "items": [...],
         "created_at": "2025-06-30T10:35:00Z",
-        "updated_at": "2025-06-30T10:35:00Z"
+        "items": [
+            {
+                "id": 1,
+                "menu_item_name": "Orange Juice",
+                "menu_item_price": "25.00",
+                "quantity": 2,
+                "total_price": "50.00"
+            }
+        ]
     }
 }
 ```
+
+---
+
+### 22. View Customer Orders
+**Purpose**: Get all orders for current customer
+
+- **Method**: `GET`
+- **Endpoint**: `/api/orders/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+- **Query Parameters**:
+  - `status` (optional): Filter by order status
+  - `page` (optional): Page number for pagination
+
+**Success Response** (200):
+```json
+{
+    "count": 10,
+    "next": "http://localhost:8000/api/orders/?page=2",
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "status": "PLACED",
+            "total_amount": "125.00",
+            "total_items": 5,
+            "notes": "Please make it less spicy",
+            "created_at": "2025-06-30T10:35:00Z",
+            "updated_at": "2025-06-30T10:35:00Z"
+        }
+    ]
+}
+```
+
+---
+
+### 23. Get Specific Order Details
+**Purpose**: Get detailed information about specific order
+
+- **Method**: `GET`
+- **Endpoint**: `/api/orders/{order_id}/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+---
+
+### 24. Cancel Order
+**Purpose**: Cancel a placed order (if allowed)
+
+- **Method**: `POST`
+- **Endpoint**: `/api/orders/{order_id}/cancel/`
+- **Authentication**: Required (Customer Token)
+- **Headers**: `Authorization: Bearer <customer_access_token>`
+
+**Success Response** (200):
+```json
+{
+    "message": "Order cancelled successfully",
+    "order": {
+        "id": 1,
+        "status": "CANCELLED",
+        "total_amount": "125.00"
+    }
+}
+```
+
+---
+
+## 🛠️ Admin APIs
+
+### 25. List All Menu Items (Admin)
+**Purpose**: Get all menu items for admin management
+
+- **Method**: `GET`
+- **Endpoint**: `/api/menu/admin/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+
+---
+
+### 26. Create New Menu Item (Admin)
+**Purpose**: Add new menu item to system
+
+- **Method**: `POST`
+- **Endpoint**: `/api/menu/admin/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "name": "Masala Dosa",              // Required
+    "description": "Crispy dosa with spicy potato filling", // Optional
+    "price": 45.00,                     // Required
+    "available": true,                  // Required
+    "category": "snacks"                // Required
+}
+```
+
+---
+
+### 27. Update Menu Item (Admin)
+**Purpose**: Update existing menu item
+
+- **Method**: `PUT`
+- **Endpoint**: `/api/menu/admin/{menu_item_id}/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+- **Content-Type**: `application/json`
+
+---
+
+### 28. Delete Menu Item (Admin)
+**Purpose**: Remove menu item from system
+
+- **Method**: `DELETE`
+- **Endpoint**: `/api/menu/admin/{menu_item_id}/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+
+---
+
+### 29. View All Orders (Admin)
+**Purpose**: Get all orders in the system
+
+- **Method**: `GET`
+- **Endpoint**: `/api/orders/admin/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+- **Query Parameters**:
+  - `status` (optional): Filter by order status
+  - `search` (optional): Search by customer username
+  - `page` (optional): Page number
+
+---
+
+### 30. Update Order Status (Admin)
+**Purpose**: Change order status
+
+- **Method**: `PATCH`
+- **Endpoint**: `/api/orders/admin/{order_id}/update-status/`
+- **Authentication**: Required (Admin Token)
+- **Headers**: `Authorization: Bearer <admin_access_token>`
+- **Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+    "status": "PREPARING"               // Required
+}
+```
+
+**Valid Status Values**:
+- `PLACED`
+- `CONFIRMED`
+- `PREPARING`
+- `READY`
+- `DELIVERED`
+- `CANCELLED`
+
+---
+
+## ⚠️ Error Responses
+
+### Common Error Status Codes:
+- **400 Bad Request**: Invalid request data
+- **401 Unauthorized**: Missing or invalid authentication
+- **403 Forbidden**: Insufficient permissions
+- **404 Not Found**: Resource not found
+- **500 Internal Server Error**: Server error
+
+### Error Response Format:
+```json
+{
+    "error": "Error message description"
+}
+```
+
+### Validation Error Format:
+```json
+{
+    "field_name": ["Error message for this field"],
+    "another_field": ["Another error message"]
+}
+```
+
+---
+
+## 📝 Notes for Frontend Integration
+
+1. **Authentication**: Save `access` and `refresh` tokens from login response
+2. **Token Refresh**: Implement automatic token refresh when API returns 401
+3. **User Type**: Check `user_type` from login response to determine user permissions
+4. **Pagination**: Many list APIs support pagination with `page` parameter
+5. **Search & Filters**: Use query parameters for filtering and searching
+6. **Error Handling**: Always handle error responses appropriately
+7. **Cart Management**: Cart is user-specific and requires authentication
+8. **Order Status**: Track order status changes for real-time updates
