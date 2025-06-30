@@ -748,4 +748,5 @@
 5. **Search & Filters**: Use query parameters for filtering and searching
 6. **Error Handling**: Always handle error responses appropriately
 7. **Cart Management**: Cart is user-specific and requires authentication
-8. **Order Status**: Track order status changes for real-time updates
+8. **Order Status**: Track order status changes for real-time updates#   C a n t e e n _ M a n a g e m e n t _ S y s t e m  
+ 
