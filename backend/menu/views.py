@@ -1,4 +1,3 @@
-# menu/views.py (Enhanced for customer interface)
 from rest_framework import generics, permissions, filters
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser

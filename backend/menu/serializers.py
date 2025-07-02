@@ -5,3 +5,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = '__all__'
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError("Image is required.")
+        return value
